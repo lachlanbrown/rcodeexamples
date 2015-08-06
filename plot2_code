@@ -1,0 +1,16 @@
+## This script assumes you already have the data frame called 'testset' loaded into your global
+## working environment, with 2880 obs. of 9 variables, created by the code 'plot1.R' contained
+## in the github repository '...' The code to construct this data frame is contained in the 
+## commented 3 lines below
+
+## complete = read.table("household_power_consumption.txt",header = TRUE, sep = ";", na.strings = "?", nrows = 2075259)
+## complete$Date = as.Date(complete$Date, "%d/%m/%Y")
+## testset = complete[complete$Date>="2007-02-01" & complete$Date<="2007-02-02", ]
+testset$Date_Time = as.POSIXct(paste(testset$Date, as.character(testset$Time)))
+
+## Plot #2: line plot w/ Global_active_power as Y Axis, plotted against hour
+## need to save as plot2.png
+
+png(filename = "plot2.png", width = 480, height = 480)
+plot(testset$Global_active_power ~ testset$Date_Time, xlab = "", ylab = "Global Active Power (kilowatts)", type = "l") 
+dev.off()
