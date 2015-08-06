@@ -1,0 +1,40 @@
+## This script assumes you already have the data frame called 'testset' loaded into your global
+## working environment, with 2880 obs. of 10 variables, created by the codes 'plot1.R' & 'plot2.R', contained
+## in the github repository '...' The code to construct this data frame is contained in the 
+## commented 4 lines below
+
+## complete = read.table("household_power_consumption.txt",header = TRUE, sep = ";", na.strings = "?", nrows = 2075259)
+## complete$Date = as.Date(complete$Date, "%d/%m/%Y")
+## testset = complete[complete$Date>="2007-02-01" & complete$Date<="2007-02-02", ]
+## testset$Date_Time = as.POSIXct(paste(testset$Date, as.character(testset$Time)))
+
+## Plot #4: 4 separate plots on 2X2 grid layout: 
+## 1) Global_active_power line plot over time
+## 2) Voltage line plot over time, 
+## 3) line plot w/ Global_active_power as Y Axis, plotted against hour line plot w/ Global_active_power as Y Axis,
+## 4) Global_reactive_power line plot over time
+## need to save as plot4.png
+
+png(filename = "plot4.png", width = 480, height = 480)
+par(mfrow = c(2,2), mar = c(4,4,2,1))
+## plot #1
+plot(testset$Global_active_power ~ testset$Date_Time, xlab = "", ylab = "Global Active Power", type = "l") 
+## plot #2
+plot(testset$Voltage ~ testset$Date_Time, xlab = "datetime", ylab = "Voltage", type = "l") 
+## plot #3
+yrange<-range(c(0:38))
+plot(testset$Sub_metering_1 ~ testset$Date_Time, xlab = "", ylab = "Energy sub metering", type = "l", col = "black", ylim = yrange) 
+legend( "topright",  # places a legend at the appropriate place 
+        c("Sub_metering_1" , "Sub_metering_2" , "Sub_metering_2"),
+        bty = "n",
+        lty=c(1,1,1), 
+        lwd=c(2.5,2.5, 2.5),
+        col=c("black","red", "blue")) # gives the legend lines the correct color and width
+par(new=T)
+plot(testset$Sub_metering_2 ~ testset$Date_Time, xlab = "", ylab = "", type = "l", col = "red", ylim = yrange)
+par(new=T)
+plot(testset$Sub_metering_3 ~ testset$Date_Time, xlab = "", ylab = "", type = "l", col = "blue", ylim = yrange)
+par(new=F)
+## plot #4
+plot(testset$Global_reactive_power ~ testset$Date_Time, xlab = "datetime", ylab = "Global_reactive_power", type = "l") 
+dev.off()
