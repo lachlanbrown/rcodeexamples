@@ -1,0 +1,11 @@
+complete = read.table("household_power_consumption.txt",header = TRUE, sep = ";", na.strings = "?", nrows = 2075259)
+
+complete$Date = as.Date(complete$Date, "%d/%m/%Y")
+testset = complete[complete$Date>="2007-02-01" & complete$Date<="2007-02-02", ]
+
+## Plot #1: histogram w/ Frequency as Y Axis and Global_active_power as X. 12 bars / divisions. 
+## need to save as plot1.png
+
+png(filename = "plot1.png", width = 480, height = 480)
+hist(testset$Global_active_power, col = "red", breaks = 12, main = "Global Active Power", xlab = NULL, sub = "Global Active Power (kilowatts)") 
+dev.off()
