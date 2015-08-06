@@ -1,0 +1,92 @@
+## Question 1
+## Register an application with the Github API here https://github.com/settings/applications. 
+## Access the API to get information on your instructors repositories (hint: this is the url you want "https://api.github.com/users/jtleek/repos"). 
+## Use this data to find the time that the datasharing repo was created. What time was it created? 
+## This tutorial may be useful (https://github.com/hadley/httr/blob/master/demo/oauth2-github.r). 
+## You may also need to run the code in the base R package and not R studio.
+
+library(httr)
+library(httpuv)
+
+# 1. Find OAuth settings for github:
+#    http://developer.github.com/v3/oauth/
+oauth_endpoints("github")
+
+# 2. To make your own application, register at at
+#    https://github.com/settings/applications. Use any URL for the homepage URL
+#    (http://github.com is fine) and  http://localhost:1410 as the callback url
+#
+#    Replace your key and secret below.
+myapp <- oauth_app("github",
+                   key = "f6fa0eaf8153e6c9d7a8",
+                   secret = "a39829d1382677763b5427b607034d214a81ffbf")
+
+# 3. Get OAuth credentials
+github_token <- oauth2.0_token(oauth_endpoints("github"), myapp)
+
+# 4. Use API
+gtoken <- config(token = github_token)
+req <- GET("https://api.github.com/users/jtleek/repos", gtoken)
+stop_for_status(req)
+content(req)
+
+# 5. convert into data frame
+library(jsonlite)
+json1 = content(req) ## pulls in data from req into json
+# structure (hard to read)
+json2 = jsonlite::fromJSON(toJSON(json1)) ## uses jsonlite to convert to data frame
+# 6. extract the time that the datasharing repo was created
+## create_date = json2[grep("datasharing", json2$url, value = TRUE), 'created_at'] ## this doesn't work, returns empty list
+## create_date <- subset(json2, select = c(url, created_at)) ## this works but prefer [] subsetting in code
+create_date <- json2[grep("datasharing", json2$url), ] ## this returns entire row corresponding with 'datasharing' repo
+create_date
+
+## Question 2
+## The sqldf package allows for execution of SQL commands on R data frames. 
+## We will use the sqldf package to practice the queries we might send with the dbSendQuery command in RMySQL. 
+## Download the American Community Survey data and load it into an R object called
+
+## acs
+
+## https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Fss06pid.csv 
+fileUrl <- "https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Fss06pid.csv?accessType=DOWNLOAD" 
+dir.create("survey")
+download.file(fileUrl, destfile = "survey/survey_data.csv")
+dateDownloaded <- date()
+SurveyData <- read.table("survey/survey_data.csv", sep = ",", header = TRUE) ## check! acs is a data frame consisting of 14931 rows and 239 columns
+## Which of the following commands will select only the data for the probability weights pwgtp1 with ages less than 50?
+
+## sqldf("select * from acs")
+## sqldf("select * from acs where AGEP < 50 and pwgtp1")
+sqldf("select pwgtp1 from acs where AGEP < 50") ## gotta be this one!!! QA'ed in Excel, get same # of rows.
+
+## Question 4
+## How many characters are in the 10th, 20th, 30th and 100th lines of HTML from this page: 
+  
+##   http://biostat.jhsph.edu/~jleek/contact.html 
+con = url("http://biostat.jhsph.edu/~jleek/contact.html")
+htmlCode = readLines(con)
+nchar(htmlCode[10]) ## 20, 30, etc.
+
+## (Hint: the nchar() function in R may be helpful)
+## 45 92 7 2
+## 43 99 8 6
+## 45 0 2 2
+## 45 31 7 25 ### ding ding ding!!!
+## 43 99 7 25
+## 45 31 2 25
+## 45 31 7 31
+## sqldf("select * from acs where AGEP < 50")
+
+## Question #4
+## Read this data set into R and report the sum of the numbers in the fourth of the nine columns. 
+
+## https://d396qusza40orc.cloudfront.net/getdata%2Fwksst8110.for 
+
+fileUrl <- "https://d396qusza40orc.cloudfront.net/getdata%2Fwksst8110.for?accessType=DOWNLOAD" 
+dir.create("NOAA")
+download.file(fileUrl, destfile = "NOAA/NOAA_data.for")
+dateDownloaded <- date()
+NOAA_data = read.fwf("NOAA/NOAA_data.for", widths = c(15,4,9,4,10,4,6,7,16), skip = 4) #didn't get all the column widths right, but at least got to the 4th :)
+sum(NOAA_data[,4])
+## [1] 32426.7
