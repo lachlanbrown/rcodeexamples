@@ -1,0 +1,118 @@
+## Question 1
+## The American Community Survey distributes downloadable data about United States communities. 
+## Download the 2006 microdata survey about housing for the state of Idaho using download.file() from here: 
+
+##  https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Fss06hid.csv 
+
+## and load the data into R. The code book, describing the variable names is here: 
+
+##  https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FPUMSDataDict06.pdf 
+fileUrl <- "https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Fss06hid.csv?accessType=DOWNLOAD" 
+download.file(fileUrl, destfile = "./idaho_housing/idaho.csv")
+idaho_housing = read.csv("idaho_housing/idaho.csv")
+
+## Apply strsplit() to split all the names of the data frame on the characters "wgtp". 
+## What is the value of the 123 element of the resulting list?
+
+splitNames = strsplit(names(idaho_housing), "wgtp") 
+splitNames[123]
+## [[1]]
+## [1] ""   "15"
+
+## "wgtp" "15"
+## "wgt" "15"
+## "wgtp"
+## "" "15" DING DING DING!!
+
+## Question 2
+## Load the Gross Domestic Product data for the 190 ranked countries in this data set: 
+  
+##   https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FGDP.csv 
+fileUrl <- "https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FGDP.csv"
+download.file(fileUrl, destfile = "data/GDP.csv")
+gdp_data = read.csv("data/GDP.csv", header = FALSE, skip = 5, col.names = c("country_code", "gdp_ranking", "null", "country_name", "GDP", "null1", "null2", "null3", "null4", "null5"), nrows = 190)
+
+## Remove the commas from the GDP numbers in millions of dollars and average them. What is the average? 
+
+gdp_data$GDP = as.character(gdp_data$GDP)
+gdp_data$GDP = gsub("," , "", gdp_data$GDP)
+gdp_data$GDP = as.numeric(gdp_data$GDP)
+mean(gdp_data$GDP)
+## [1] 377652.4
+
+## Original data sources: http://data.worldbank.org/data-catalog/GDP-ranking-table
+## 381668.9
+## 381615.4
+## 293700.3
+## 377652.4 DING DING DING!!
+
+## Question 3
+## In the data set from Question 2 what is a regular expression that would allow you to count the number 
+## of countries whose name begins with "United"? Assume that the variable with the country names in it is 
+## named countryNames. How many countries begin with United?
+
+grep("^United",gdp_data$country_name)
+## [1]  1  6 32
+
+## grep("^United",gdp_data$country_name), 4
+## grep("*United",gdp_data$country_name), 5
+## grep("*United",gdp_data$country_name), 2
+## grep("^United",gdp_data$country_name), 3  DING DING DING!!
+
+## Question 4
+## Load the Gross Domestic Product data for the 190 ranked countries in this data set: 
+  
+##   https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FGDP.csv 
+
+## already loaded as gdp_data data frame
+
+## Load the educational data from this data set: 
+  
+##   https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FEDSTATS_Country.csv 
+FedUrl <- "https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FEDSTATS_Country.csv?accessType=DOWNLOAD" 
+download.file(FedUrl, destfile = "data/fed_stats.csv")
+fed_data = read.csv("data/fed_stats.csv")
+
+## Match the data based on the country shortcode. 
+
+mergedData = merge(fed_data, gdp_data, by.x = "CountryCode", by.y = "country_code") 
+
+## Of the countries for which the end of the fiscal year is available, how many end in June? 
+mergedData$Special.Notes = as.character(mergedData$Special.Notes)
+table(grepl("^Fiscal (.*) [Jj]une", mergedData$Special.Notes))
+
+## FALSE  TRUE 
+## 176    13 
+
+## 31
+## 15
+## 8
+## 13 DING DING DING!!
+
+## Question 5
+## You can use the quantmod (http://www.quantmod.com/) package to get historical stock 
+## prices for publicly traded companies on the NASDAQ and NYSE. Use the following code 
+## to download data on Amazon's stock price and get the times the data was sampled.
+
+library(quantmod)
+amzn = getSymbols("AMZN",auto.assign=FALSE)
+sampleTimes = index(amzn) 
+
+## How many values were collected in 2012? How many values were collected on 
+## Mondays in 2012?
+
+readable_dates = format(sampleTimes, "%Y %a")
+table(grepl("^2012", readable_dates))
+
+## FALSE  TRUE 
+## 1882   250 
+
+table(grepl("^2012 Mon$", readable_dates))
+
+## FALSE  TRUE 
+## 2085    47 
+
+## 252, 47
+## 250, 47 DING DING DING!!
+## 365, 52
+## 250, 51
